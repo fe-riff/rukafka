@@ -1,0 +1,7 @@
+[package]
+name = "rukafka"
+version = "0.1.0"
+authors = ["glyn"]
+
+[dependencies]
+kafka = "0.7"
