@@ -2,9 +2,9 @@ extern crate kafka;
 extern crate byteorder;
 #[macro_use]
 extern crate serde_json;
+extern crate rukafka;
 
-mod wireformat;
-
+use rukafka::wireformat;
 use std::collections::HashMap;
 use std::str;
 use byteorder::BigEndian;
