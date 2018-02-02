@@ -1,14 +1,8 @@
 extern crate kafka;
 extern crate byteorder;
-#[macro_use]
-extern crate serde_json;
 extern crate rukafka;
 
 use rukafka::wireformat;
-use std::collections::HashMap;
-use std::str;
-use byteorder::BigEndian;
-use byteorder::ByteOrder;
 use kafka::producer::{Producer, Record, RequiredAcks, AsBytes};
 use kafka::consumer::{Consumer, FetchOffset};
 use std::time::Duration;
@@ -27,17 +21,17 @@ fn main() {
             .with_fallback_offset(FetchOffset::Earliest)
             .create()
             .unwrap();
+
     loop {
-        for ms in consumer.poll().unwrap().iter() {
-            println!("consumer poll returned");
-            for m in ms.messages() {
-                let msg = wireformat::from_kafka(m.value).unwrap();
-                println!("{:?}", msg);
-                producer.send(&Record::from_value("replies",
-                                                  wireformat::to_kafka(msg).as_bytes())).unwrap();
-                println!("reply sent");
+        for _ in 1..101 {
+            for ms in consumer.poll().unwrap().iter() {
+                for m in ms.messages() {
+                    let msg = wireformat::from_kafka(m.value).unwrap();
+                    producer.send(&Record::from_value("replies",
+                                                      wireformat::to_kafka(msg).as_bytes())).unwrap();
+                }
+                consumer.consume_messageset(ms).unwrap();
             }
-            consumer.consume_messageset(ms).unwrap();
         }
         consumer.commit_consumed().unwrap();
     }

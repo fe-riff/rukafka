@@ -16,7 +16,6 @@ pub fn from_kafka(bytes: &[u8]) -> Result<Message, &str> {
 
     let header_count = bytes[offset];
     offset += 1;
-    println!("header_count: {}", header_count);
 
     let mut headers: HashMap<String, [String; 1]> = HashMap::new();
     for _i in 0..header_count {
@@ -30,10 +29,8 @@ pub fn from_kafka(bytes: &[u8]) -> Result<Message, &str> {
         offset += len;
 
         let len = BigEndian::read_u32(&bytes[offset..offset + 4]) as usize;
-        println!("big endian len: {}", len);
         offset += 4;
         let s = str::from_utf8(&bytes[offset..offset + len]).unwrap();
-        println!("about to deserialise {}", s);
 
         let value = serde_json::from_str(s).unwrap();
 
@@ -67,7 +64,6 @@ pub fn to_kafka<'a>(message: Message) -> Vec<u8> {
     result.push(0xff);
     result.push(num_headers as u8);
     for (k, v) in header_values {
-        println!("encoding header {} with value {}", k, v);
         let l = k.chars().count();
         result.push(l as u8);
         for c in k.chars() {
@@ -101,7 +97,6 @@ mod tests {
         let headers = HashMap::new();
         let msg = new_message("hello".as_bytes(), headers);
 
-
         assert_eq!(msg, from_kafka(to_kafka(msg.clone()).as_ref()).unwrap());
     }
 
@@ -110,7 +105,6 @@ mod tests {
         let mut headers = HashMap::new();
         headers.insert(String::from("a"), [String::from("vwxyz"); 1]);
         let msg = new_message("hello".as_bytes(), headers);
-
 
         assert_eq!(msg, from_kafka(to_kafka(msg.clone()).as_ref()).unwrap());
     }
